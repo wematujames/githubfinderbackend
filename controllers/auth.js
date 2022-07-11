@@ -1,3 +1,4 @@
+const config = require("config");
 const sendMail = require("../utils/sendMail"),
 	User = require("../models/User"),
 	crypto = require("crypto"),
@@ -69,6 +70,21 @@ exports.getMe = asyncHandler(async (req, res, next) => {
 	});
 });
 
+//Desc                      //Get logged in user
+//Route                     //POST /api/v1/auth/logout
+//Require Auth              //True
+exports.logoutUser = asyncHandler(async (req, res, next) => {
+	const options = {
+		expires: new Date(Date.now() + 5000),
+		httpOnly: true
+	};
+
+	res.status(200).cookie("token", "", options).json({
+		succees: true,
+		msg: "Logout success"
+	});
+});
+
 //Desc                      //Forgot password
 //Route                     //POST /api/v1/auth/forgotpassord
 //Require Auth              //False
@@ -109,7 +125,6 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 			user
 		});
 	} catch (error) {
-		console.log(error);
 		user.passwordResetToken = undefined;
 		user.passwordResetTokenExpiration = undefined;
 		await user.save({ validateBeforeSave: false });
@@ -129,7 +144,6 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
 		passwordResetToken: resetToken,
 		resetPasswordTokenExpiration: { $gt: Date.now() }
 	});
-	console.log(user);
 	//Validate password reset token and validate user
 	if (!user) {
 		return next(
@@ -202,7 +216,8 @@ const sendTokenResponse = (statusCode, user, res, msg) => {
 
 	const options = {
 		expires: new Date(
-			Date.now() + process.env.COOKIE_EXPIRES * 24 * 60 * 60 * 1000
+			Date.now() +
+				config.get("auth.authCookieExpire") * 24 * 60 * 60 * 1000
 		),
 		httpOnly: true
 	};

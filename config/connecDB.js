@@ -1,12 +1,10 @@
-require("dotenv").config({ path: true });
+const config = require("config");
 const mongoose = require("mongoose");
+const colors = require("colors");
 
 const connectDB = async () => {
 	try {
-		const mongoURI =
-			process.env.NODE_ENV === "development"
-				? process.env.MONGO_URI_LOCAL
-				: process.env.MONGO_URI;
+		const mongoURI = config.get("db.URI");
 
 		const conn = await mongoose.connect(mongoURI, {
 			useNewUrlParser: true,

@@ -1,0 +1,23 @@
+{
+	"server": {
+		"port": "5000"
+	},
+	"db": {
+		"URI": "mongodb://127.0.0.1:27017/GithubFinderDB"
+	},
+	"auth": {
+		"jwt": {
+			"cookieExpire": "30d",
+			"secret": "sdkrf@#sdklfj3SDf2l3wsdlkjr3SDrk3#54ksdk#ksdrjf#jsdFl2jk3jk"
+		},
+		"authCookieExpire": "30"
+	},
+	"mailer": {
+		"smtpHost": "",
+		"smtpPort": "",
+		"smtpUserNameEmail": "",
+		"smtpPassword": "",
+		"smtpFromName": "Github Finder",
+		"smtpFromEmail": "help@githubfinder.com"
+	}
+}

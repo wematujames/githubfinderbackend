@@ -1,7 +1,8 @@
 const ErrorResponse = require("../utils/ErrorResponse");
-const asyncHandler = require("./asyncHandler");
+const config = require("config");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+console.log();
 
 //Make sure user is logged in
 exports.protect = async (req, res, next) => {
@@ -28,7 +29,7 @@ exports.protect = async (req, res, next) => {
 	}
 
 	try {
-		const payload = jwt.verify(token, process.env.JWT_SECRET);
+		const payload = jwt.verify(token, config.get("auth.jwt.secret"));
 		req.user = await User.findById(payload.id);
 		next();
 	} catch (err) {

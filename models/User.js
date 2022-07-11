@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const config = require("config");
 
 const userSchema = new mongoose.Schema(
 	{
@@ -29,6 +30,10 @@ const userSchema = new mongoose.Schema(
 				/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
 				"Please enter a valid email address"
 			],
+			unique: [
+				true,
+				"Email already registered. Please log in if you own it or reset your password."
+			],
 			trim: true
 		},
 		password: {
@@ -50,16 +55,20 @@ const userSchema = new mongoose.Schema(
 		createdAt: {
 			type: Date,
 			default: Date.now
+		},
+		updatedAt: {
+			type: Date,
+			default: Date.now
 		}
 	},
 	{ toObject: { virtuals: true }, toJSON: { virtuals: true } }
 );
 
 //enable post virtual for user
-userSchema.virtual("posts", {
-	ref: "Post",
+userSchema.virtual("searches", {
+	ref: "userSearchTerms",
 	localField: "_id",
-	foreignField: "userId",
+	foreignField: "user",
 	justOne: false
 });
 
@@ -74,8 +83,8 @@ userSchema.pre("save", async function (next) {
 
 //Get signed jwt
 userSchema.methods.getSignedJWT = function () {
-	return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-		expiresIn: process.env.JWT_EXPIRESIN
+	return jwt.sign({ id: this._id }, config.get("auth.jwt.secret"), {
+		expiresIn: config.get("auth.jwt.cookieExpire")
 	});
 };
 

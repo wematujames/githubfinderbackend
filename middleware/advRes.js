@@ -1,67 +1,70 @@
-const advRes = (model, populate) => async (req, res, next) => {
-	let query;
+const asyncHandler = require("./asyncHandler");
 
-	let reqQuery = { ...req.query };
+const advRes = (model, populate) =>
+	asyncHandler(async (req, res, next) => {
+		let query;
 
-	const fieldsToNotMatch = ["_select", "_sort", "_page", "_limit"];
-	fieldsToNotMatch.forEach(field => delete reqQuery[field]);
+		let reqQuery = { ...req.query };
 
-	let queryStr = JSON.stringify(reqQuery);
+		const fieldsToNotMatch = ["_select", "_sort", "_page", "_limit"];
+		fieldsToNotMatch.forEach(field => delete reqQuery[field]);
 
-	//add mongoose operators
-	queryStr = queryStr.replace(
-		/\b(lt|lte|gt|gte|in)\b/g,
-		match => `$${match}`
-	);
+		let queryStr = JSON.stringify(reqQuery);
 
-	query = model.find(JSON.parse(queryStr));
+		//add mongoose operators
+		queryStr = queryStr.replace(
+			/\b(lt|lte|gt|gte|in)\b/g,
+			match => `$${match}`
+		);
 
-	//Select certain fields
-	if (req.query._select) {
-		query = query.select(req.query._select.replace(/,/g, " "));
-	}
+		query = model.find(JSON.parse(queryStr));
 
-	//Sort by certain fields
-	if (req.query._sort) {
-		query = query.sort(req.query._sort.replace(/,/g, " "));
-	} else {
-		query = query.sort("-createdAt");
-	}
+		//Select certain fields
+		if (req.query._select) {
+			query = query.select(req.query._select.replace(/,/g, " "));
+		}
 
-	const page = parseInt(req.query._page, 10) || 1;
-	const limit = parseInt(req.query._limit, 10) || 3;
-	const skip = (page - 1) * limit;
-	const totalRes = await model.countDocuments();
-	const resShown = page * limit;
+		//Sort by certain fields
+		if (req.query._sort) {
+			query = query.sort(req.query._sort.replace(/,/g, " "));
+		} else {
+			query = query.sort("-createdAt");
+		}
 
-	//limit skip and populate
-	query = query.limit(limit).skip(skip).populate(populate);
+		const page = parseInt(req.query._page, 10) || 1;
+		const limit = parseInt(req.query._limit, 10) || 3;
+		const skip = (page - 1) * limit;
+		const totalRes = await model.countDocuments();
+		const resShown = page * limit;
 
-	const pagination = {};
+		//limit skip and populate
+		query = query.limit(limit).skip(skip).populate(populate);
 
-	if (skip > 0) {
-		pagination.prev = {
-			prev: page - 1,
-			limit
+		const pagination = {};
+
+		if (skip > 0) {
+			pagination.prev = {
+				prev: page - 1,
+				limit
+			};
+		}
+
+		if (resShown < totalRes) {
+			pagination.next = {
+				next: page + 1,
+				limit
+			};
+		}
+
+		const results = await query;
+
+		res.advRes = {
+			success: true,
+			count: results.length,
+			pagination,
+			data: results
 		};
-	}
-
-	if (resShown < totalRes) {
-		pagination.next = {
-			next: page + 1,
-			limit
-		};
-	}
-
-	const results = await query;
-
-	res.advRes = {
-		success: true,
-		count: results.length,
-		pagination,
-		data: results
-	};
-	next();
-};
+		next();
+	});
 
 module.exports = advRes;
