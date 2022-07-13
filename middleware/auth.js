@@ -12,10 +12,9 @@ exports.protect = async (req, res, next) => {
 		req.headers.authorization.startsWith("Bearer")
 	) {
 		token = req.headers.authorization.split(" ")[1];
+	} else if (req.cookies.token) {
+		token = req.cookies.token;
 	}
-	//   else if( req.cookies.token) {
-	//       token = req.cookies.token;
-	//     }
 
 	//checi if token is set
 	if (!token) {
@@ -27,7 +26,6 @@ exports.protect = async (req, res, next) => {
 			)
 		);
 	}
-
 	try {
 		const payload = jwt.verify(token, config.get("auth.jwt.secret"));
 		req.user = await User.findById(payload.id);

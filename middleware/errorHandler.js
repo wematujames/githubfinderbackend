@@ -1,6 +1,6 @@
 module.exports = (err, req, res, next) => {
 	// console.log(err.stack);
-	const error = { ...err, name: err.name, message: err.message };
+	const error = { ...err, name: err.name, msg: err.message };
 
 	//Invalid object id error
 	if (error.name === "CastError") {

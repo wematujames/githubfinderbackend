@@ -10,7 +10,20 @@ const sendMail = require("../utils/sendMail"),
 //Route                     //POST /api/v1/auth/register
 //Require Auth              //False
 exports.registerUser = asyncHandler(async (req, res, next) => {
-	const user = await await User.create(req.body);
+	//Check seleted user
+	const existingUsername = await User.findOne({
+		userName: req.body.userName.trim()
+	});
+
+	const existingEmail = await User.findOne({ email: req.body.email.trim() });
+	console.log(existingUsername);
+	if (existingUsername)
+		return next(new ErrorResponse(400, "Username already taken"));
+
+	if (existingEmail)
+		return next(new ErrorResponse(400, "Email already been registered"));
+
+	const user = await User.create(req.body);
 
 	sendTokenResponse(201, user, res, "Registration Successful");
 });
@@ -19,21 +32,23 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
 //Route                     //POST /api/v1/auth/login
 //Require Auth              //False
 exports.loginUser = asyncHandler(async (req, res, next) => {
-	const { email, password } = req.body;
+	const { user, password } = req.body;
 	//Check if email and password were provided
-	if (!email || !password) {
+	if (!user || !password) {
 		return next(
 			new ErrorResponse(
 				400,
-				`Please enter email and password`,
+				`Please enter username/email and password`,
 				`One or more fields not completed`
 			)
 		);
 	}
 
 	//Check for user in DB
-	const user = await User.findOne({ email }).select("+password");
-	if (!user) {
+	const existingUser = await User.findOne({ email: user }).select(
+		"+password"
+	);
+	if (!existingUser) {
 		return next(
 			new ErrorResponse(
 				400,
@@ -44,7 +59,7 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
 	}
 
 	//Check if passwords match
-	const passMatch = await user.matchPassword(password);
+	const passMatch = await existingUser.matchPassword(password);
 	if (!passMatch) {
 		return next(
 			new ErrorResponse(
@@ -54,14 +69,14 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
 			)
 		);
 	}
-
-	sendTokenResponse(200, user, res, "Login Successful");
+	sendTokenResponse(200, existingUser, res, "Login Successful");
 });
 
 //Desc                      //Get logged in user
 //Route                     //POST /api/v1/auth/me
 //Require Auth              //True
 exports.getMe = asyncHandler(async (req, res, next) => {
+	console.log(req.headers.authorization);
 	const user = await User.findById(req.user.id);
 
 	res.status(200).json({
@@ -219,7 +234,8 @@ const sendTokenResponse = (statusCode, user, res, msg) => {
 			Date.now() +
 				config.get("auth.authCookieExpire") * 24 * 60 * 60 * 1000
 		),
-		httpOnly: true
+		httpOnly: true,
+		secure: config.get("server.env") === "production" ? true : false
 	};
 
 	res.status(statusCode).cookie("token", token, options).json({

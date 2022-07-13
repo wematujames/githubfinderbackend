@@ -4,6 +4,7 @@ const connectDB = require("./config/connecDB");
 const config = require("config");
 const colors = require("colors");
 const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 
 //Init app
 const app = express();
@@ -18,7 +19,7 @@ app.use(express.urlencoded({ extended: true })); //accept form data
 app.use(express.json()); // accept json data
 app.use(cors()); // allow cross orign req
 app.use(morgan("dev")); // req logger
-
+app.use(cookieParser());
 //Routes
 // app.use("/", require("./routes")); //main page / documentation
 app.use("/api/v1/auth", require("./routes/auth")); // authourization routes
