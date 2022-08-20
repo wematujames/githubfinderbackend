@@ -9,7 +9,7 @@
 	"auth": {
 		"jwt": {
 			"cookieExpire": "30d",
-			"jwtSecret": "sdkrf@#sdklfj3SDf2l3wsdlkjr3SDrk3#54ksdk#ksdrjf#jsdFl2jk3jk"
+			"secret": "sdkrf@#sdklfj3SDf2l3wsdlkjr3SDrk3#54ksdk#ksdrjf#jsdFl2jk3jk"
 		},
 		"authCookieExpire": "30"
 	}

@@ -5,6 +5,7 @@ const config = require("config");
 const colors = require("colors");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
+const path = require("path");
 
 //Init app
 const app = express();
@@ -22,6 +23,7 @@ app.use(morgan("dev")); // req logger
 app.use(cookieParser());
 //Routes
 // app.use("/", require("./routes")); //main page / documentation
+app.use(express.static(path.join(__dirname, "public")));
 app.use("/api/v1/auth", require("./routes/auth")); // authourization routes
 app.use("/api/v1/searchterms", require("./routes/searchTerms")); // authourization routes
 
