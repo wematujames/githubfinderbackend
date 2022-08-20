@@ -46,6 +46,7 @@ module.exports.searchSearchTerms = asyncHandler(async (req, res, next) => {
 //Require Auth              //True
 module.exports.insertSearchTerm = asyncHandler(async (req, res, next) => {
 	req.body.user = req.user.id;
+	console.log("search", req.body);
 
 	//Chech if search term by user already exists
 	const existingTerm = await UserSearchTerm.findOne({
@@ -70,13 +71,15 @@ module.exports.insertSearchTerm = asyncHandler(async (req, res, next) => {
 //Route                     //DELETE /api/v1/searchTerms/userid?searchTermId=1
 //Require Auth              //True
 module.exports.deleteSearchTerm = asyncHandler(async (req, res, next) => {
-	const searchTerm = await UserSearchTerm.findOne({
-		user: req.user.id,
-		searchTerm: req.query.searchTerm
-	});
+	console.log(req.params.termId);
+	console.log(req.user.id);
+	const searchTerm = await UserSearchTerm.findById(req.params.termId);
+	console.log("searc", searchTerm);
 
 	if (!searchTerm)
 		return next(new ErrorResponse(400, "No such search term by user."));
+
+	await searchTerm.remove();
 
 	res.json({ msg: "SearchTerm deleted" });
 });

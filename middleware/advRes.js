@@ -32,7 +32,7 @@ const advRes = (model, populate) =>
 		}
 
 		const page = parseInt(req.query._page, 10) || 1;
-		const limit = parseInt(req.query._limit, 10) || 3;
+		const limit = parseInt(req.query._limit, 10) || 10;
 		const skip = (page - 1) * limit;
 		const totalRes = await model.countDocuments();
 		const resShown = page * limit;

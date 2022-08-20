@@ -2,7 +2,6 @@ const ErrorResponse = require("../utils/ErrorResponse");
 const config = require("config");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-console.log();
 
 //Make sure user is logged in
 exports.protect = async (req, res, next) => {

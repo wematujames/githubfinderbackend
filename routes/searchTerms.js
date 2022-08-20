@@ -15,8 +15,9 @@ router.use(protect);
 router
 	.route("/")
 	.get(advRes(UserSearchTerm), getSearchTerms)
-	.post(insertSearchTerm)
-	.delete(deleteSearchTerm);
+	.post(insertSearchTerm);
+
+router.delete("/:termId", deleteSearchTerm);
 
 router.get("/search", searchSearchTerms);
 

@@ -23,7 +23,7 @@ app.use(cookieParser());
 //Routes
 // app.use("/", require("./routes")); //main page / documentation
 app.use("/api/v1/auth", require("./routes/auth")); // authourization routes
-app.use("/api/v1/searchTerms", require("./routes/searchTerms")); // authourization routes
+app.use("/api/v1/searchterms", require("./routes/searchTerms")); // authourization routes
 
 //Custom error handler
 app.use(require("./middleware/errorHandler"));

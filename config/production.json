@@ -4,7 +4,7 @@
 		"env": "production"
 	},
 	"db": {
-		"URI": "mongodb://127.0.0.1:27017/GithubFinderDB"
+		"URI": "mongodb+srv://wematu:iVOaPMbNAMyQSkUQ@cluster0.iqyznir.mongodb.net/GithubFinder?retryWrites=true&w=majority"
 	},
 	"auth": {
 		"jwt": {
